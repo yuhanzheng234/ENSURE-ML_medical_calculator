@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
+os.environ['PYCOX_DATA_DIR'] = '/tmp/pycox_data'
 
 # Import your custom modules
 import dummy_coding
