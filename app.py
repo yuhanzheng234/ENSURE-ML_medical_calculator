@@ -50,12 +50,36 @@ class DeepHitSingle_new(PMFBase):
 # Streamlit App Configuration
 st.set_page_config(
     page_title="Esophagectomy Survival Calculator",
-    page_icon="🏥",
     layout="wide"
 )
 
+# Custom CSS for styling
+st.markdown("""
+    <style>
+    /* Center the titles */
+    h1 {
+        text-align: center;
+    }
+    h3 {
+        text-align: center;
+    }
+    
+    /* Style for Calculate button - Light Green */
+    .stButton > button[kind="primary"] {
+        background-color: #4CAF50 !important;
+        color: white !important;
+        font-weight: bold !important;
+        border: none !important;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        background-color: #45a049 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Title
-st.title("🏥 Recurrence & Survival Calculator")
+st.title("Recurrence & Survival Calculator")
 st.subheader("For Patients after Curative-intent Esophagectomy")
 st.markdown("---")
 
@@ -66,56 +90,80 @@ with st.form("calculator_form"):
     
     with col1:
         sex = st.selectbox("Sex", ["Select", "Female", "Male", "NA"], key="sex")
-        age = st.text_input("Age at Diagnosis", key="age")
-        asa_grade = st.selectbox("ASA Grade", ["Select", "1", "2", "3", "NA"], key="asa")
-        barretts = st.selectbox("Barrett's Esophagus", ["Select", "No", "Yes", "NA"], key="barretts")
-        histologic = st.selectbox("Histologic Type", ["Select", "Adenocarcinoma", "Squamous Cell Carcinoma", "NA"], key="histologic")
+        clinical_t = st.selectbox("Clinical T Stage", ["Select", "cTis/HGD", "cT1", "cT2", "cT3", "cT4", "NA"], key="clinical_t")
+        distal_margin = st.selectbox("Distal margin positive", ["Select", "No", "Yes", "NA"], key="distal_margin")
+        path_m = st.selectbox("Pathologic M Stage", ["Select", "M0", "M1", "NA"], key="path_m")
+        num_nodes = st.text_input("Number of nodes analyzed", placeholder="Enter number or NA", key="num_nodes")
+        clavien_dindo = st.selectbox("Clavien-Dindo Grade", ["Select", "No complications", "Grade I", "Grade II", "Grade IIIa", "Grade IIIb", "Grade IVa", "Grade IVb", "Grade V (mortality)", "NA"], key="clavien_dindo")
+        he_compulsory = st.text_input("HE Compulsory", placeholder="Enter value or NA", key="he_compulsory")
+       
     
     with col2:
-        clinical_t = st.selectbox("Clinical T Stage", ["Select", "0", "1", "2", "3", "4a", "4b", "X", "NA"], key="clinical_t")
-        clinical_n = st.selectbox("Clinical N Stage", ["Select", "0", "1", "2", "3", "X", "NA"], key="clinical_n")
-        clinical_diff = st.selectbox("Clinical Differentiation", ["Select", "Well", "Moderate", "Poor", "Undifferentiated", "NA"], key="clinical_diff")
-        tumor_site = st.selectbox("Tumour Site", ["Select", "Upper third", "Middle third", "Lower third", "GOJ", "NA"], key="tumor_site")
-        path_t = st.selectbox("Pathologic T Stage", ["Select", "0", "1a", "1b", "2", "3", "4a", "4b", "X", "NA"], key="path_t")
-    
+        age = st.text_input("Age at Diagnosis", placeholder="Enter age or NA", key="age")
+        clinical_n = st.selectbox("Clinical N stage", ["Select", "cN0", "cN1", "cN2", "cN3", "NA"], key="clinical_n")
+        proximal_margin = st.selectbox("Proximal margin positive", ["Select", "No", "Yes", "NA"], key="proximal_margin")
+        diff = st.selectbox("Differentiation", ["Select", "Gx, cannot be assessed", "Well differentiated", "Moderately differentiated", "Poorly differentiated", "Signet ring features", "NA"], key="diff")
+        treatment = st.selectbox("Treatment protocol", ["Select", "Surgery only", 
+                                                        "Surgery and adjuvant chemotherapy and/or radiation", 
+                                                        "Neoadjuvant chemotherapy then surgery (±perioperative)", 
+                                                        "Neoadjuvant chemoradiation then surgery", 
+                                                        "Definitive chemoradiation and salvage surgery", 
+                                                        "NA"], key="treatment")
+        los = st.text_input("Length of stay", placeholder="Enter number or NA", key="los")
+        cancer_cases = st.selectbox("Cancer cases per year", ["Select", "0-10", "10-20", "20-30", "30-40", "40-50", "50-60", ">60", "NA"], key="cancer_cases")
+
+
     with col3:
-        path_n = st.selectbox("Pathologic N Stage", ["Select", "0", "1", "2", "3", "X", "NA"], key="path_n")
-        differentiation = st.selectbox("Differentiation", ["Select", "Well", "Moderate", "Poor", "Undifferentiated", "NA"], key="differentiation")
-        num_nodes = st.text_input("Number of Nodes Analyzed", key="num_nodes")
-        treatment = st.selectbox("Treatment Protocol", ["Select", "Surgery", "NAC then Surgery", "Surgery then AC", "Surgery then NACTRT", "NACTRT then Surgery", "NA"], key="treatment")
-        operation = st.selectbox("Operation Type", ["Select", "Oesophagectomy", "Oesophagogastrectomy", "NA"], key="operation")
+        asa_grade = st.selectbox("ASA Grade", ["Select", "1", "2", "3", "NA"], key="asa")
+        clinical_m = st.selectbox("Clinical M Stage", ["Select", "M0", "M1 distant metastases", "NA"], key="clinical_m")
+        radial_margin = st.selectbox("Radial margin positive", ["Select", "No", "Yes", "NA"], key="radial_margin")
+        lymphatic_inva = st.selectbox("Lymphatic invasion", ["Select", "Not present", "Present", "NA"], key="lymphatic_inva")
+        operation = st.selectbox("Operation type", ["Select", "Extended total gastrectomy Roux-en-Y", 
+                                                    "2-stage esophagecomy (Ivor Lewis)", 
+                                                    "3-stage esophagectomy (McKeown)", 
+                                                    "Transhiatal esophagectomy", 
+                                                    "Pharyngo-largyngo-esophagectomy", 
+                                                    "Sweet (left thoracoabdominal) + cervical anastomosis", 
+                                                    "Sweet (left thoracoabdominal) + intrathoracic anastomosis", 
+                                                    "NA"], key="operation")
+        gastro_leak = st.selectbox("Gastroenteric leak", ["Select", "No Leak", "Leak", "NA"], key="gastro_leak")
+        consultant_volume = st.selectbox("Consultant Volume SPSS", ["Select", "0", "1", "2", "NA"], key="consultant_volume")
+
     
     with col4:
-        approach = st.selectbox("Approach", ["Select", "Open", "Hybrid-MIE", "Total-MIE", "NA"], key="approach")
-        r_status = st.selectbox("R status", ["Select", "0", "1", "NA"], key="r_status")
-        los = st.text_input("Length of Stay", key="los")
-        recurrent_nerve = st.selectbox("Recurrent Laryngeal Nerve Injury", ["Select", "0", "1", "NA"], key="recurrent_nerve")
-        chyle_leak = st.selectbox("Chyle Leak", ["Select", "0", "1", "NA"], key="chyle_leak")
-    
+        barretts = st.selectbox("Barrett's Esophagus", ["Select", "No", "Yes", "NA"], key="barretts")
+        clinical_diff = st.selectbox("Clinical Differentiation", ["Select", "Gx, cannot be assessed", "Well differentiated", "Moderately differentiated", "Poorly differentiated", "Signet ring", "NA"], key="clinical_diff")
+        path_t = st.selectbox("Pathologic T stage", ["Select", "T0", "Tis/HGD", "T1", "T2", "T3", "T4", "NA"], key="path_t")
+        venous_inva = st.selectbox("Venous invasion", ["Select", "Not present", "Present", "NA"], key="venous_inva")
+        approach = st.selectbox("Approach", ["Select", "Open", "Hybrid MIE", "Total MIE", "Hybrid converted", "Total MIE converted", "NA"], key="approach")
+        gdp = st.text_input("GDP USD per cap", placeholder="Enter value or NA", key="gdp")
+        intensive_surv = st.selectbox("Intensive Surveillance", ["Select", "No", "Yes", "NA"], key="intensive_surv")
+
+
     with col5:
-        leak = st.selectbox("Gastroenteric Leak", ["Select", "0", "1", "NA"], key="leak")
-        gdp = st.text_input("GDP USD per cap", key="gdp")
-        h_voluntary = st.text_input("H voluntary", key="h_voluntary")
-        he_compulsory = st.text_input("HE Compulsory", key="he_compulsory")
-        cancer_cases = st.selectbox("Cancer Cases per Year", ["Select", "0-10", "10-20", "20-30", "30-40", "40-50", "50-60", ">60", "NA"], key="cancer_cases")
-    
+        histologic = st.selectbox("Histologic Type", ["Select", "Adenocarcinoma", "Squamous Cell Carcinoma", "NA"], key="histologic")
+        tumor_site = st.selectbox("Tumour site", ["Select", "Junctional", "Lower", "Middle", "Upper", "NA"], key="tumor_site")
+        path_n = st.selectbox("Pathologic N stage", ["Select", "N0", "N1", "N2", "N3", "NA"], key="path_n")
+        peri_invasion = st.selectbox("Perineural invasion", ["Select", "Not present", "Present", "NA"], key="peri_invasion")
+        robotic = st.selectbox("Robotic assisted", ["Select", "No", "Yes, robotic assisted", "NA"], key="robotic")
+        h_volutary = st.text_input("H volutary", placeholder="Enter value or NA", key="h_volutary")
+
+  
     # Additional inputs in a new row
-    col6, col7, col8, col9, col10 = st.columns(5)
-    
+    st.markdown("---")
+    col6, col7 = st.columns(2)
+
     with col6:
-        consultant_volume = st.selectbox("Consultant Volume SPSS", ["Select", "0", "1", "2", "NA"], key="consultant_volume")
-    
-    with col7:
-        intensive_surv = st.selectbox("Intensive Surveillance", ["Select", "0", "1", "NA"], key="intensive_surv")
-    
-    with col8:
+        st.markdown('<p style="color: #0D4A70; font-weight: bold;">📊 Analysis Options</p>', unsafe_allow_html=True)
         clinical_endpoint = st.selectbox("Clinical Endpoint", ["Select", "DFS", "OS", "DSS"], key="clinical_endpoint")
-    
-    with col9:
+
+    with col7:
+        st.markdown('<p style="color: #0D4A70; font-weight: bold;">🤖 Model Selection</p>', unsafe_allow_html=True)
         survival_model = st.selectbox("Survival Model", ["Select", "CoxPH", "XGBoost", "DeepSurv", "DeepHit"], key="survival_model")
     
     # Submit button
-    submitted = st.form_submit_button("Calculate Survival", use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    submitted = st.form_submit_button("Calculate", use_container_width=True, type="primary")
 
 # Process form submission
 if submitted:
@@ -125,42 +173,107 @@ if submitted:
     else:
         try:
             # Map values to match your original Flask format
-            sex_map = {"Female": "0", "Male": "1", "NA": "NA"}
-            barretts_map = {"No": "0", "Yes": "1", "NA": "NA"}
-            histologic_map = {"Adenocarcinoma": "0", "Squamous Cell Carcinoma": "1", "NA": "NA"}
-            
-            # Map cancer cases
-            cancer_map = {"0-10": "0", "10-20": "1", "20-30": "2", "30-40": "3", "40-50": "4", "50-60": "5", ">60": "6", "NA": "NA"}
-            
+            sex_map = {"Select": "NA", "Female": "0", "Male": "1", "NA": "NA"}
+            clinical_t_map = {"Select": "NA", "cTis/HGD": "0", "cT1": "1", "cT2": "2", "cT3": "3", "cT4": "4", "NA": "NA"}
+            distal_margin_map = {"Select": "NA", "No": "0", "Yes": "1", "NA": "NA"}
+            path_m_map = {"Select": "NA", "M0": "0", "M1": "1", "NA": "NA"}
+            clavien_dindo_map = {"Select": "NA", "No complications": "0", "Grade I": "1", "Grade II": "2", "Grade IIIa": "3", "Grade IIIb": "4", "Grade IVa": "5", "Grade IVb": "6", "Grade V (mortality)": "7", "NA": "NA"}
+
+
+            clinical_n_map = {"Select": "NA", "cN0": "0", "cN1": "1", "cN2": "2", "cN3": "3", "NA": "NA"}
+            proximal_margin_map = {"Select": "NA", "No": "0", "Yes": "1", "NA": "NA"}
+            diff_map = {"Select": "NA", "Gx, cannot be assessed": "0", "Well differentiated": "1", "Moderately differentiated": "2", "Poorly differentiated": "3", "Signet ring features": "4", "NA": "NA"}
+            treatment_map = {"Select": "NA", "Surgery only": "0", 
+                             "Surgery and adjuvant chemotherapy and/or radiation": "1", 
+                             "Neoadjuvant chemotherapy then surgery (±perioperative)": "2", 
+                             "Neoadjuvant chemoradiation then surgery": "3", 
+                             "Definitive chemoradiation and salvage surgery": "4", 
+                             "NA": "NA"}
+            cancer_map = {"Select": "NA", "0-10": "0", "10-20": "1", "20-30": "2", "30-40": "3", "40-50": "4", "50-60": "5", ">60": "6", "NA": "NA"}
+
+
+            clinical_m_map = {"Select": "NA", "M0": "0", "M1 distant metastases": "1", "NA": "NA"}  
+            radial_margin_map = {"Select": "NA", "No": "0", "Yes": "1", "NA": "NA"}
+            lymphatic_inva_map = {"Select": "NA", "Not present": "0", "Present": "1", "NA": "NA"}
+            operation_map = {"Select": "NA", "Extended total gastrectomy Roux-en-Y": "0", 
+                             "2-stage esophagecomy (Ivor Lewis)": "1", 
+                             "3-stage esophagectomy (McKeown)": "2",
+                             "Transhiatal esophagectomy": "3",
+                             "Pharyngo-largyngo-esophagectomy": "4",
+                             "Sweet (left thoracoabdominal) + cervical anastomosis": "5",
+                             "Sweet (left thoracoabdominal) + intrathoracic anastomosis": "6",
+                             "NA": "NA"}
+            gastro_leak_map = {"Select": "NA", "No Leak": "0", "Leak": "1", "NA": "NA"}
+
+
+            barretts_map = {"Select": "NA", "No": "0", "Yes": "1", "NA": "NA"}
+            clinical_diff_map = {"Select": "NA", "Gx, cannot be assessed": "0", "Well differentiated": "1", "Moderately differentiated": "2", "Poorly differentiated": "3", "Signet ring": "4", "NA": "NA"}
+            path_t_map = {"Select": "NA", "T0": "0", "Tis/HGD": "1", "T1": "2", "T2": "3", "T3": "4", "T4": "5", "NA": "NA"}
+            venous_inva_map = {"Select": "NA", "Not present": "0", "Present": "1", "NA": "NA"}
+            approach_map = {"Select": "NA", "Open": "0", "Hybrid MIE": "1", "Total MIE": "2", "Hybrid converted": "3", "Total MIE converted": "4", "NA": "NA"}
+            intense_surv_map = {"Select": "NA", "No": "0", "Yes": "1", "NA": "NA"}
+
+
+            histologic_map = {"Select": "NA", "Adenocarcinoma": "0", "Squamous Cell Carcinoma": "1", "NA": "NA"}
+            tumor_site_map = {"Select": "NA", "Junctional": "0", "Lower": "1", "Middle": "2", "Upper": "3", "NA": "NA"}
+            path_n_map = {"Select": "NA", "N0": "0", "N1": "1", "N2": "2", "N3": "3", "NA": "NA"}
+            peri_invasion_map = {"Select": "NA", "Not present": "0", "Present": "1", "NA": "NA"}
+            robotic_map = {"Select": "NA", "No": "0", "Yes, robotic assisted": "1", "NA": "NA"}
+
+
+
             # Create data dictionary
             data = {
-                "Sex": sex_map.get(sex, sex),
-                "Age at diagnosis": age,
-                "ASA grade": asa_grade if asa_grade != "Select" else "NA",
+                "Sex": sex_map.get(sex, sex), # allow for NA?
+                "Age at diagnosis": age if age else "NA",
+                "ASA grade": asa_grade != "Select" and asa_grade or "NA",
                 "Barrett's esophagus": barretts_map.get(barretts, barretts),
                 "Histologic type": histologic_map.get(histologic, histologic),
-                "Clinical T stage": clinical_t if clinical_t != "Select" else "NA",
-                "Clinical N stage": clinical_n if clinical_n != "Select" else "NA",
-                "Clinical Differentiation": clinical_diff if clinical_diff != "Select" else "NA",
-                "Tumour site": tumor_site if tumor_site != "Select" else "NA",
-                "Pathologic T stage": path_t if path_t != "Select" else "NA",
-                "Pathologic N stage": path_n if path_n != "Select" else "NA",
-                "Differentiation": differentiation if differentiation != "Select" else "NA",
-                "Number of nodes analyzed": num_nodes,
-                "Treatment protocol": treatment if treatment != "Select" else "NA",
-                "Operation type": operation if operation != "Select" else "NA",
-                "Approach": approach if approach != "Select" else "NA",
-                "R status": r_status if r_status != "Select" else "NA",
-                "Length of stay": los,
-                "Recurrent laryngeal nerve injury": recurrent_nerve if recurrent_nerve != "Select" else "NA",
-                "Chyle leak": chyle_leak if chyle_leak != "Select" else "NA",
-                "Gastroenteric leak": leak if leak != "Select" else "NA",
-                "GDP USD per cap": gdp,
-                "H volutary": h_voluntary,
-                "HE Compulsory": he_compulsory,
+
+
+                "Clinical T stage": clinical_t_map.get(clinical_t, clinical_t),
+                "Clinical N stage": clinical_n_map.get(clinical_n, clinical_n),
+                "Clinical M stage": clinical_m_map.get(clinical_m, clinical_m),
+                "Clinical Differentiation": clinical_diff_map.get(clinical_diff, clinical_diff),
+                "Tumour site": tumor_site_map.get(tumor_site, tumor_site),
+
+
+                "Distal margin positive": distal_margin_map.get(distal_margin, distal_margin),
+                "Proximal margin positive": proximal_margin_map.get(proximal_margin, proximal_margin),
+                "Radial margin positive": radial_margin_map.get(radial_margin, radial_margin),
+                "Pathologic T stage": path_t_map.get(path_t, path_t),
+                "Pathologic N stage": path_n_map.get(path_n, path_n),
+
+
+
+                "Pathologic M Stage": path_m_map.get(path_m, path_m),
+                "Differentiation": diff_map.get(diff, diff),
+                "Lymphatic invasion": lymphatic_inva_map.get(lymphatic_inva, lymphatic_inva),
+                "Venous invasion": venous_inva_map.get(venous_inva, venous_inva),
+                "Perineural invasion": peri_invasion_map.get(peri_invasion, peri_invasion),
+
+
+                "Number of nodes analyzed": num_nodes if num_nodes else "NA",
+                "Treatment protocol": treatment_map.get(treatment, treatment),
+                "Operation type": operation_map.get(operation, operation),
+                "Approach": approach_map.get(approach, approach),
+                "Robotic assisted": robotic_map.get(robotic, robotic),
+
+
+
+                "Clavien-Dindo Grade": clavien_dindo_map.get(clavien_dindo, clavien_dindo),
+                "Length of stay": los if los else "NA",
+                "Gastroenteric leak": gastro_leak_map.get(gastro_leak, gastro_leak),
+                "GDP USD per cap": gdp if gdp else "NA",
+                "H volutary": h_volutary if h_volutary else "NA",
+
+
+
+                "HE Compulsory": he_compulsory if he_compulsory else "NA",
                 "Cancer cases per year": cancer_map.get(cancer_cases, cancer_cases),
                 "Consultant Volume SPSS": consultant_volume if consultant_volume != "Select" else "NA",
-                "Intensive Surveillance": intensive_surv if intensive_surv != "Select" else "NA"
+                "Intensive Surveillance": intense_surv_map.get(intensive_surv, intensive_surv),
+
             }
             
             # Convert to DataFrame
