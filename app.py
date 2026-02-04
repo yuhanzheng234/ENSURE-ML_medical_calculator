@@ -5,7 +5,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
-os.environ['PYCOX_DATA_DIR'] = '/tmp/pycox_data'
 
 # Import your custom modules
 import dummy_coding
@@ -57,35 +56,109 @@ st.set_page_config(
 # Custom CSS for styling
 st.markdown("""
     <style>
-    /* Center the titles */
+    /* Center the titles and make them smaller */
     h1 {
         text-align: center;
+        font-size: 2rem !important;  /* Smaller title (default is ~2.5rem) */
+        margin-top: -50px !important;  /* Move up */
+        margin-bottom: 5px !important;  /* Less space below */
     }
     h3 {
         text-align: center;
+        font-size: 1.4rem !important;  /* Smaller subtitle */
+        margin-top: 0px !important;
+        margin-bottom: 10px !important;
     }
-    
-    /* Style for Calculate button - Light Green */
-    .stButton > button[kind="primary"] {
-        background-color: #4CAF50 !important;
+
+    /* =========================
+    Calculate (Submit) button
+    ========================= */
+    div[data-testid="stFormSubmitButton"] > button {
+        background-color: #4CAF50 !important;   /* green */
         color: white !important;
-        font-weight: bold !important;
+        font-weight: 700 !important;
         border: none !important;
     }
-    
-    .stButton > button[kind="primary"]:hover {
-        background-color: #45a049 !important;
+
+    div[data-testid="stFormSubmitButton"] > button:hover {
+        background-color: #45a049 !important;   /* darker green */
+        color: white !important;
+    }
+
+    /* =========================
+    Reset button
+    ========================= */
+    div[data-testid="stButton"] > button {
+        background-color: #E53935 !important;   /* red */
+        color: white !important;
+        font-weight: 700 !important;
+        border: none !important;
+    }
+
+    div[data-testid="stButton"] > button:hover {
+        background-color: #C62828 !important;   /* darker red */
+        color: white !important;
     }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
 
 # Title
 st.title("Recurrence & Survival Calculator")
 st.subheader("For Patients after Curative-intent Esophagectomy")
-st.markdown("---")
 
-# Create form
-with st.form("calculator_form"):
+
+def reset_form():
+    defaults = {
+        "sex": "Select",
+        "clinical_t": "Select",
+        "distal_margin": "Select",
+        "path_m": "Select",
+        "num_nodes": "",
+        "clavien_dindo": "Select",
+        "he_compulsory": "",
+        "age": "",
+        "clinical_n": "Select",
+        "proximal_margin": "Select",
+        "diff": "Select",
+        "treatment": "Select",
+        "los": "",
+        "cancer_cases": "Select",
+        "asa": "Select",
+        "clinical_m": "Select",
+        "radial_margin": "Select",
+        "lymphatic_inva": "Select",
+        "operation": "Select",
+        "gastro_leak": "Select",
+        "consultant_volume": "Select",
+        "barretts": "Select",
+        "clinical_diff": "Select",
+        "path_t": "Select",
+        "venous_inva": "Select",
+        "approach": "Select",
+        "gdp": "",
+        "intensive_surv": "Select",
+        "histologic": "Select",
+        "tumor_site": "Select",
+        "path_n": "Select",
+        "peri_invasion": "Select",
+        "robotic": "Select",
+        "h_volutary": "",
+        "clinical_endpoint": "Select",
+        "survival_model": "Select",
+    }
+
+
+    st.session_state.update(defaults)
+    st.session_state.encoded_image = None
+
+
+col1, col2, col3 = st.columns([5, 1, 1])
+with col3:
+    st.button("Reset", use_container_width=True, on_click=reset_form)
+
+# Create form 
+with st.form(f"calculator_form"):
     # Organize inputs in columns
     col1, col2, col3, col4, col5 = st.columns(5)
     
@@ -96,11 +169,11 @@ with st.form("calculator_form"):
         path_m = st.selectbox("Pathologic M Stage", ["Select", "M0", "M1", "NA"], key="path_m")
         num_nodes = st.text_input("Number of nodes analyzed", placeholder="Enter number or NA", key="num_nodes")
         clavien_dindo = st.selectbox("Clavien-Dindo Grade", ["Select", "No complications", "Grade I", "Grade II", "Grade IIIa", "Grade IIIb", "Grade IVa", "Grade IVb", "Grade V (mortality)", "NA"], key="clavien_dindo")
-        he_compulsory = st.text_input("HE Compulsory", placeholder="Enter value or NA", key="he_compulsory")
+        he_compulsory = st.text_input("HE Compulsory", placeholder="Enter number or NA", key="he_compulsory")
        
     
     with col2:
-        age = st.text_input("Age at Diagnosis", placeholder="Enter age or NA", key="age")
+        age = st.text_input("Age at Diagnosis", placeholder="Enter number or NA", key="age")
         clinical_n = st.selectbox("Clinical N stage", ["Select", "cN0", "cN1", "cN2", "cN3", "NA"], key="clinical_n")
         proximal_margin = st.selectbox("Proximal margin positive", ["Select", "No", "Yes", "NA"], key="proximal_margin")
         diff = st.selectbox("Differentiation", ["Select", "Gx, cannot be assessed", "Well differentiated", "Moderately differentiated", "Poorly differentiated", "Signet ring features", "NA"], key="diff")
@@ -115,7 +188,7 @@ with st.form("calculator_form"):
 
 
     with col3:
-        asa_grade = st.selectbox("ASA Grade", ["Select", "1", "2", "3", "NA"], key="asa")
+        asa = st.selectbox("ASA Grade", ["Select", "1", "2", "3", "NA"], key="asa")
         clinical_m = st.selectbox("Clinical M Stage", ["Select", "M0", "M1 distant metastases", "NA"], key="clinical_m")
         radial_margin = st.selectbox("Radial margin positive", ["Select", "No", "Yes", "NA"], key="radial_margin")
         lymphatic_inva = st.selectbox("Lymphatic invasion", ["Select", "Not present", "Present", "NA"], key="lymphatic_inva")
@@ -137,7 +210,7 @@ with st.form("calculator_form"):
         path_t = st.selectbox("Pathologic T stage", ["Select", "T0", "Tis/HGD", "T1", "T2", "T3", "T4", "NA"], key="path_t")
         venous_inva = st.selectbox("Venous invasion", ["Select", "Not present", "Present", "NA"], key="venous_inva")
         approach = st.selectbox("Approach", ["Select", "Open", "Hybrid MIE", "Total MIE", "Hybrid converted", "Total MIE converted", "NA"], key="approach")
-        gdp = st.text_input("GDP USD per cap", placeholder="Enter value or NA", key="gdp")
+        gdp = st.text_input("GDP USD per cap", placeholder="Enter number or NA", key="gdp")
         intensive_surv = st.selectbox("Intensive Surveillance", ["Select", "No", "Yes", "NA"], key="intensive_surv")
 
 
@@ -147,7 +220,7 @@ with st.form("calculator_form"):
         path_n = st.selectbox("Pathologic N stage", ["Select", "N0", "N1", "N2", "N3", "NA"], key="path_n")
         peri_invasion = st.selectbox("Perineural invasion", ["Select", "Not present", "Present", "NA"], key="peri_invasion")
         robotic = st.selectbox("Robotic assisted", ["Select", "No", "Yes, robotic assisted", "NA"], key="robotic")
-        h_volutary = st.text_input("H volutary", placeholder="Enter value or NA", key="h_volutary")
+        h_volutary = st.text_input("H volutary", placeholder="Enter number or NA", key="h_volutary")
 
   
     # Additional inputs in a new row
@@ -169,8 +242,8 @@ with st.form("calculator_form"):
 # Process form submission
 if submitted:
     # Validate inputs
-    if sex == "Select" or clinical_endpoint == "Select" or survival_model == "Select":
-        st.error("Please select all required fields!")
+    if clinical_endpoint == "Select" or survival_model == "Select":
+        st.error("Please select a Clinical Endpoint and a Survival Model")
     else:
         try:
             # Map values to match your original Flask format
@@ -227,7 +300,7 @@ if submitted:
             data = {
                 "Sex": sex_map.get(sex, sex), # allow for NA?
                 "Age at diagnosis": age if age else "NA",
-                "ASA grade": asa_grade != "Select" and asa_grade or "NA",
+                "ASA grade": asa if asa != "Select" else "NA",
                 "Barrett's esophagus": barretts_map.get(barretts, barretts),
                 "Histologic type": histologic_map.get(histologic, histologic),
 
@@ -246,7 +319,6 @@ if submitted:
                 "Pathologic N stage": path_n_map.get(path_n, path_n),
 
 
-
                 "Pathologic M Stage": path_m_map.get(path_m, path_m),
                 "Differentiation": diff_map.get(diff, diff),
                 "Lymphatic invasion": lymphatic_inva_map.get(lymphatic_inva, lymphatic_inva),
@@ -259,7 +331,6 @@ if submitted:
                 "Operation type": operation_map.get(operation, operation),
                 "Approach": approach_map.get(approach, approach),
                 "Robotic assisted": robotic_map.get(robotic, robotic),
-
 
 
                 "Clavien-Dindo Grade": clavien_dindo_map.get(clavien_dindo, clavien_dindo),
@@ -304,24 +375,32 @@ if submitted:
                 elif survival_model == 'XGBoost':
                     encoded_image = xgboost_model.xgboost_model(df, clinical_endpoint)
             
+            
             # Display results
             st.success("✅ Prediction Complete!")
             st.markdown("---")
-            st.subheader("📊 Survival Plot")
+            st.subheader("📊 Prediction Result")
             
-            # Display the image
+            # Display the image with smaller width (centered)
             import base64
             from io import BytesIO
             image_data = base64.b64decode(encoded_image)
-            st.image(image_data, use_container_width=True)
             
-            # Add download button
-            st.download_button(
-                label="Download Plot",
-                data=image_data,
-                file_name=f"survival_plot_{survival_model}_{clinical_endpoint}.png",
-                mime="image/png"
-            )
+            # Use columns to make image smaller and centered
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.image(image_data, use_container_width=True)
+            
+            # Center the download button too
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.download_button(
+                    label="📥 Save Prediction Result",
+                    data=image_data,
+                    file_name=f"prediction_result_{survival_model}_{clinical_endpoint}.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
             
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
