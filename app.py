@@ -104,9 +104,24 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 
-# Title
-st.title("Recurrence & Survival Calculator")
-st.subheader("For Patients after Curative-intent Esophagectomy")
+# Title and usage instructions
+st.title("Recurrence & Survival Calculator for Patients after Curative-intent Esophagectomy")
+
+st.markdown("""
+<div style="text-align: center;">
+
+<span style="font-size: 1.3rem; font-weight: 700;">
+🔍How to use this calculator
+</span><br>
+
+Select or enter the relevant clinical and pathological variables below. Fields may be left blank when information is unavailable. \\
+Choose a clinical endpoint and a survival model, then click <em>Calculate</em> to generate an individualised prediction curve. \\
+The plot can be downloaded using the <em>Save Prediction Result</em> button located below the plot. 
+To clear all inputs, click the <em>Reset</em> button in the top-right corner.
+
+</div>
+""", unsafe_allow_html=True)
+
 
 
 def reset_form():
