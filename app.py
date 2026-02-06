@@ -183,13 +183,13 @@ with st.form(f"calculator_form"):
         clinical_t = st.selectbox("Clinical T Stage", ["Select", "cTis/HGD", "cT1", "cT2", "cT3", "cT4", "NA"], key="clinical_t")
         distal_margin = st.selectbox("Distal margin positive", ["Select", "No", "Yes", "NA"], key="distal_margin")
         path_m = st.selectbox("Pathologic M Stage", ["Select", "M0", "M1", "NA"], key="path_m")
-        num_nodes = st.text_input("Number of nodes analyzed", placeholder="Enter number or NA", key="num_nodes")
+        num_nodes = st.text_input("Number of nodes analyzed", placeholder="Enter number", key="num_nodes")
         clavien_dindo = st.selectbox("Clavien-Dindo Grade", ["Select", "No complications", "Grade I", "Grade II", "Grade IIIa", "Grade IIIb", "Grade IVa", "Grade IVb", "Grade V (mortality)", "NA"], key="clavien_dindo")
-        he_compulsory = st.text_input("HE Compulsory", placeholder="Enter number or NA", key="he_compulsory")
+        he_compulsory = st.text_input("HE Compulsory", placeholder="Enter number", key="he_compulsory")
        
     
     with col2:
-        age = st.text_input("Age at Diagnosis", placeholder="Enter number or NA", key="age")
+        age = st.text_input("Age at Diagnosis", placeholder="Enter number", key="age")
         clinical_n = st.selectbox("Clinical N stage", ["Select", "cN0", "cN1", "cN2", "cN3", "NA"], key="clinical_n")
         proximal_margin = st.selectbox("Proximal margin positive", ["Select", "No", "Yes", "NA"], key="proximal_margin")
         diff = st.selectbox("Differentiation", ["Select", "Gx, cannot be assessed", "Well differentiated", "Moderately differentiated", "Poorly differentiated", "Signet ring features", "NA"], key="diff")
@@ -199,7 +199,7 @@ with st.form(f"calculator_form"):
                                                         "Neoadjuvant chemoradiation then surgery", 
                                                         "Definitive chemoradiation and salvage surgery", 
                                                         "NA"], key="treatment")
-        los = st.text_input("Length of stay", placeholder="Enter number or NA", key="los")
+        los = st.text_input("Length of stay", placeholder="Enter number", key="los")
         cancer_cases = st.selectbox("Cancer cases per year", ["Select", "0-10", "10-20", "20-30", "30-40", "40-50", "50-60", ">60", "NA"], key="cancer_cases")
 
 
@@ -226,7 +226,7 @@ with st.form(f"calculator_form"):
         path_t = st.selectbox("Pathologic T stage", ["Select", "T0", "Tis/HGD", "T1", "T2", "T3", "T4", "NA"], key="path_t")
         venous_inva = st.selectbox("Venous invasion", ["Select", "Not present", "Present", "NA"], key="venous_inva")
         approach = st.selectbox("Approach", ["Select", "Open", "Hybrid MIE", "Total MIE", "Hybrid converted", "Total MIE converted", "NA"], key="approach")
-        gdp = st.text_input("GDP USD per cap", placeholder="Enter number or NA", key="gdp")
+        gdp = st.text_input("GDP USD per cap", placeholder="Enter number", key="gdp")
         intensive_surv = st.selectbox("Intensive Surveillance", ["Select", "No", "Yes", "NA"], key="intensive_surv")
 
 
@@ -236,7 +236,7 @@ with st.form(f"calculator_form"):
         path_n = st.selectbox("Pathologic N stage", ["Select", "N0", "N1", "N2", "N3", "NA"], key="path_n")
         peri_invasion = st.selectbox("Perineural invasion", ["Select", "Not present", "Present", "NA"], key="peri_invasion")
         robotic = st.selectbox("Robotic assisted", ["Select", "No", "Yes, robotic assisted", "NA"], key="robotic")
-        h_volutary = st.text_input("H volutary", placeholder="Enter number or NA", key="h_volutary")
+        h_volutary = st.text_input("H volutary", placeholder="Enter number", key="h_volutary")
 
   
     # Additional inputs in a new row
